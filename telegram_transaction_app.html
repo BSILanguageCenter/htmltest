@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Телеграмм Транзакция</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #121212;
+            color: #f4f4f9;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: #1f1f1f;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        .container h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #fff;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+        .form-group input, .form-group select {
+            width: 80%;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #2b2b2b;
+            color: #fff;
+            box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .summary {
+            margin-top: 20px;
+            background-color: #2b2b2b;
+            padding: 10px;
+            border-radius: 8px;
+            color: #ccc;
+        }
+        .summary h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .new-transaction-btn {
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .new-transaction-btn:hover {
+            background-color: #218838;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #444;
+            color: #fff;
+        }
+        th {
+            background-color: #333;
+        }
+        td {
+            background-color: #2b2b2b;
+        }
+        .status {
+            color: #ff9900;
+            font-weight: bold;
+        }
+        .status.processed {
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Телеграмм Транзакция</h1>
+        <div id="step1">
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="name">Имя</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">Адрес</label>
+                    <input type="text" id="address" name="address" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Телефон</label>
+                    <input type="text" id="phone" name="phone" required>
+                </div>
+                <button type="submit" class="btn">Зарегистрироваться</button>
+            </form>
+        </div>
+
+        <div id="step2" style="display: none;">
+            <h2>Ваши данные:</h2>
+            <div class="summary">
+                <div>
+                    <strong>Имя: </strong><span id="displayName"></span> 
+                    <button id="editNameBtn">Редактировать</button>
+                </div>
+                <div>
+                    <strong>Адрес: </strong><span id="displayAddress"></span> 
+                    <button id="editAddressBtn">Редактировать</button>
+                </div>
+            </div>
+
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label for="deliveryMethod">Метод доставки</label>
+                    <select id="deliveryMethod" name="deliveryMethod" required>
+                        <option value="">Выберите</option>
+                        <option value="Delivery">Доставка</option>
+                        <option value="Pickup">Самовывоз</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="recipientName">Имя получателя</label>
+                    <input type="text" id="recipientName" name="recipientName" required>
+                </div>
+                <div class="form-group">
+                    <label for="recipientPhone">Телефон получателя</label>
+                    <input type="text" id="recipientPhone" name="recipientPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="transactionAmount">Сумма транзакции ($)</label>
+                    <input type="number" id="transactionAmount" name="transactionAmount" required>
+                </div>
+                <button type="submit" class="btn">Отправить транзакцию</button>
+            </form>
+        </div>
+
+        <div id="transactionSummary" style="display: none;">
+            <h2>Список транзакций</h2>
+            <table id="transactionTable">
+                <thead>
+                    <tr>
+                        <th>Метод доставки</th>
+                        <th>Имя получателя</th>
+                        <th>Телефон получателя</th>
+                        <th>Сумма транзакции</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Здесь будут появляться данные о транзакциях -->
+                </tbody>
+            </table>
+            <button id="newTransactionBtn" class="new-transaction-btn">Новая транзакция</button>
+        </div>
+    </div>
+
+    <script>
+        const registrationForm = document.getElementById('registrationForm');
+        const transactionForm = document.getElementById('transactionForm');
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const transactionSummary = document.getElementById('transactionSummary');
+        const transactionTableBody = document.getElementById('transactionTable').getElementsByTagName('tbody')[0];
+        const newTransactionBtn = document.getElementById('newTransactionBtn');
+        const editNameBtn = document.getElementById('editNameBtn');
+        const editAddressBtn = document.getElementById('editAddressBtn');
+
+        let userData = {};
+        let transactions = [];
+
+        registrationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Симуляция сохранения данных пользователя
+            const user = {
+                name: document.getElementById('name').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value,
+            };
+
+            userData = user;
+            console.log(`Пользователь зарегистрирован: ${user.name}, ${user.address}, ${user.phone}`);
+
+            // Очистка полей после регистрации
+            registrationForm.reset();
+
+            // Показываем данные пользователя
+            document.getElementById('displayName').textContent = user.name;
+            document.getElementById('displayAddress').textContent = user.address;
+
+            // Переключение на форму транзакции
+            step1.style.display = 'none';
+            step2.style.display = 'block';
+        });
+
+        transactionForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Сбор данных о транзакции
+            const transaction = {
+                deliveryMethod: document.getElementById('deliveryMethod').value,
+                recipientName: document.getElementById('recipientName').value,
+                recipientPhone: document.getElementById('recipientPhone').value,
+                transactionAmount: document.getElementById('transactionAmount').value,
+                status: 'Ожидание'  // Начальный статус
+            };
+
+            // Добавляем транзакцию в список
+            transactions.push(transaction);
+
+            // Очистка полей после отправки
+            transactionForm.reset();
+
+            // Обновление таблицы транзакций
+            const row = transactionTableBody.insertRow();
+            row.innerHTML = `
+                <td>${transaction.deliveryMethod}</td>
+                <td>${transaction.recipientName}</td>
+                <td>${transaction.recipientPhone}</td>
+                <td>${transaction.transactionAmount}</td>
+                <td class="status">${transaction.status}</td>
+            `;
+
+            // Показ транзакций
+            step2.style.display = 'none';
+            transactionSummary.style.display = 'block';
+        });
+
+        newTransactionBtn.addEventListener('click', function() {
+            // Скрыть список транзакций и показать форму транзакции
+            transactionSummary.style.display = 'none';
+            step2.style.display = 'block';
+        });
+
+        // Функции редактирования данных пользователя
+        editNameBtn.addEventListener('click', function() {
+            const newName = prompt('Введите новое имя:', document.getElementById('displayName').textContent);
+            if (newName) {
+                document.getElementById('displayName').textContent = newName;
+                userData.name = newName;
+            }
+        });
+
+        editAddressBtn.addEventListener('click', function() {
+            const newAddress = prompt('Введите новый адрес:', document.getElementById('displayAddress').textContent);
+            if (newAddress) {
+                document.getElementById('displayAddress').textContent = newAddress;
+                userData.address = newAddress;
+            }
+        });
+    </script>
+</body>
+</html>
