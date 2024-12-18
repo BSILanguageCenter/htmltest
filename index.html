@@ -1,196 +1,54 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Форма регистрации и транзакции</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Отправка данных</title>
+  <script>
+    function sendData(event) {
+      event.preventDefault(); // Предотвращает перезагрузку страницы
 
-        .container {
-            width: 60%;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
+      // Собираем данные формы
+      const form = document.getElementById('transactionForm');
+      const formData = new FormData(form);
 
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 8px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 10px 15px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .step {
-            display: none;
-        }
-
-        .step.active {
-            display: block;
-        }
-    </style>
+      // Отправка данных в Google Apps Script
+      fetch('https://script.google.com/macros/s/AKfycbzWKL70ZdiJjWcUviB7RrAewFybFOdRFVAyxZg2tgNqEkh5LLYDYtKe5RoxB60K8A_lag/exec', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(data => {
+        alert(data); // Показываем код транзакции или сообщение об ошибке
+      })
+      .catch(error => {
+        console.error('Ошибка при отправке данных:', error);
+      });
+    }
+  </script>
 </head>
 <body>
+  <h1>Отправка данных транзакции</h1>
+  <form id="transactionForm" onsubmit="sendData(event)">
+    <label for="name">Ваше имя:</label>
+    <input type="text" name="name" required><br>
 
-<div class="container">
-    <!-- Step 1: Registration Form -->
-    <div id="step1" class="step active">
-        <h2>Регистрация</h2>
-        <form id="registrationForm">
-            <div class="form-group">
-                <label for="name">Имя:</label>
-                <input type="text" id="name" required>
-            </div>
-            <div class="form-group">
-                <label for="address">Адрес:</label>
-                <input type="text" id="address" required>
-            </div>
-            <div class="form-group">
-                <label for="phone">Телефон:</label>
-                <input type="text" id="phone" required>
-            </div>
-            <button type="submit">Зарегистрироват21ся</button>
-        </form>
-    </div>
+    <label for="address">Ваш адрес:</label>
+    <input type="text" name="address" required><br>
 
-    <!-- Step 2: Transaction Form -->
-    <div id="step2" class="step">
-        <h2>Транзакция</h2>
-        <form id="transactionForm">
-            <div class="form-group">
-                <label for="recipientName">Имя получателя:</label>
-                <input type="text" id="recipientName" required>
-            </div>
-            <div class="form-group">
-                <label for="recipientPhone">Телефон получателя:</label>
-                <input type="text" id="recipientPhone" required>
-            </div>
-            <div class="form-group">
-                <label for="deliveryMethod">Метод доставки:</label>
-                <select id="deliveryMethod" required>
-                    <option value="доставка на дом">Доставка на дом</option>
-                    <option value="самовывоз">Самовывоз</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="transactionAmount">Сумма транзакции:</label>
-                <input type="number" id="transactionAmount" required>
-            </div>
-            <button type="submit">Отправить транзакцию</button>
-        </form>
-    </div>
-</div>
+    <label for="phone">Ваш телефон:</label>
+    <input type="text" name="phone" required><br>
 
-<script>
-    const registrationForm = document.getElementById('registrationForm');
-    const transactionForm = document.getElementById('transactionForm');
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycbzWKL70ZdiJjWcUviB7RrAewFybFOdRFVAyxZg2tgNqEkh5LLYDYtKe5RoxB60K8A_lag/exec';  // URL вашего Apps Script
+    <label for="recipient_name">Имя получателя:</label>
+    <input type="text" name="recipient_name" required><br>
 
-    let userData = {};
+    <label for="delivery_method">Метод доставки:</label>
+    <input type="text" name="delivery_method" required><br>
 
-    // Обработка регистрации
-    registrationForm.addEventListener('submit', function(e) {
-        e.preventDefault();
+    <label for="amount">Сумма:</label>
+    <input type="number" name="amount" required><br>
 
-        const user = {
-            name: document.getElementById('name').value,
-            address: document.getElementById('address').value,
-            phone: document.getElementById('phone').value,
-        };
-
-        // Отправка данных в Google Apps Script
-        fetch(scriptUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(user),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Данные успешно отправлены:', data);
-            alert('Данные успешно сохранены! Код транзакции: ' + data.code);
-        })
-        .catch(error => {
-            console.error('Ошибка при отправке данных:', error);
-            alert('Ошибка при отправке данных');
-        });
-
-        registrationForm.reset();
-        document.getElementById('step1').classList.remove('active');
-        document.getElementById('step2').classList.add('active');
-    });
-
-    // Обработка транзакции
-    transactionForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const transaction = {
-            recipientName: document.getElementById('recipientName').value,
-            recipientPhone: document.getElementById('recipientPhone').value,
-            deliveryMethod: document.getElementById('deliveryMethod').value,
-            transactionAmount: document.getElementById('transactionAmount').value,
-        };
-
-        // Отправка транзакции в Google Apps Script
-        fetch(scriptUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(transaction),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Транзакция успешно отправлена:', data);
-            alert('Транзакция успешно сохранена! Код транзакции: ' + data.code);
-        })
-        .catch(error => {
-            console.error('Ошибка при отправке транзакции:', error);
-            alert('Ошибка при отправке транзакции');
-        });
-
-        transactionForm.reset();
-    });
-</script>
-
+    <button type="submit">Отправить</button>
+  </form>
 </body>
 </html>
