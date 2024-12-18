@@ -202,109 +202,98 @@
     <script>
         const registrationForm = document.getElementById('registrationForm');
         const transactionForm = document.getElementById('transactionForm');
-        const step1 = document.getElementById('step1');
-        const step2 = document.getElementById('step2');
-        const transactionSummary = document.getElementById('transactionSummary');
-        const transactionTableBody = document.getElementById('transactionTable').getElementsByTagName('tbody')[0];
-        const newTransactionBtn = document.getElementById('newTransactionBtn');
-        const viewTransactionsBtn = document.getElementById('viewTransactionsBtn');
-        const editNameBtn = document.getElementById('editNameBtn');
-        const editAddressBtn = document.getElementById('editAddressBtn');
+        const scriptUrl = 'https://script.google.com/macros/s/AKfycbzWKL70ZdiJjWcUviB7RrAewFybFOdRFVAyxZg2tgNqEkh5LLYDYtKe5RoxB60K8A_lag/exec';  // URL вашего Apps Script
 
         let userData = {};
         let transactions = [];
 
+        // Обработка регистрации
         registrationForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Симуляция сохранения данных пользователя
             const user = {
                 name: document.getElementById('name').value,
                 address: document.getElementById('address').value,
                 phone: document.getElementById('phone').value,
             };
 
-            userData = user;
-            console.log(`Пользователь зарегистрирован: ${user.name}, ${user.address}, ${user.phone}`);
+            // Отправка данных в Google Apps Script
+            fetch(scriptUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(user),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Данные успешно отправлены:', data);
+            })
+            .catch(error => {
+                console.error('Ошибка при отправке данных:', error);
+            });
 
-            // Очистка полей после регистрации
+            // Очистка формы и отображение данных
             registrationForm.reset();
-
-            // Показываем данные пользователя
             document.getElementById('displayName').textContent = user.name;
             document.getElementById('displayAddress').textContent = user.address;
 
             // Переключение на форму транзакции
-            step1.style.display = 'none';
-            step2.style.display = 'block';
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
         });
 
+        // Обработка транзакции
         transactionForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            // Сбор данных о транзакции
             const transaction = {
                 deliveryMethod: document.getElementById('deliveryMethod').value,
                 recipientName: document.getElementById('recipientName').value,
                 recipientPhone: document.getElementById('recipientPhone').value,
                 transactionAmount: document.getElementById('transactionAmount').value,
-                status: 'В обработке',
+                status: 'В ожидании',
             };
 
-            // Добавление транзакции в список
             transactions.push(transaction);
+            console.log('Транзакция добавлена:', transaction);
 
-            // Очистка полей формы
-            transactionForm.reset();
-
-            // Обновляем таблицу транзакций
+            // Обновление таблицы транзакций
             updateTransactionTable();
 
-            // Показываем список транзакций
-            transactionSummary.style.display = 'block';
-            step2.style.display = 'none';
+            // Очистка формы транзакции
+            transactionForm.reset();
         });
 
-        viewTransactionsBtn.addEventListener('click', function() {
-            // Показываем список транзакций
-            transactionSummary.style.display = 'block';
-            step2.style.display = 'none';
-        });
-
-        newTransactionBtn.addEventListener('click', function() {
-            // Возвращаемся к форме транзакции
-            transactionSummary.style.display = 'none';
-            step2.style.display = 'block';
-        });
-
-        editNameBtn.addEventListener('click', function() {
-            document.getElementById('name').value = userData.name;
-            step1.style.display = 'block';
-            step2.style.display = 'none';
-        });
-
-        editAddressBtn.addEventListener('click', function() {
-            document.getElementById('address').value = userData.address;
-            step1.style.display = 'block';
-            step2.style.display = 'none';
-        });
-
+        // Функция для обновления таблицы транзакций
         function updateTransactionTable() {
-            // Очищаем таблицу перед обновлением
-            transactionTableBody.innerHTML = '';
+            const tbody = document.getElementById('transactionTable').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';  // Очистка текущих данных
 
-            // Заполняем таблицу новыми транзакциями
             transactions.forEach(transaction => {
-                const row = transactionTableBody.insertRow();
-                row.innerHTML = `
-                    <td>${transaction.deliveryMethod}</td>
-                    <td>${transaction.recipientName}</td>
-                    <td>${transaction.recipientPhone}</td>
-                    <td>${transaction.transactionAmount}</td>
-                    <td><span class="status ${transaction.status === 'В обработке' ? '' : 'processed'}">${transaction.status}</span></td>
-                `;
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = transaction.deliveryMethod;
+                row.insertCell(1).textContent = transaction.recipientName;
+                row.insertCell(2).textContent = transaction.recipientPhone;
+                row.insertCell(3).textContent = transaction.transactionAmount;
+                row.insertCell(4).textContent = transaction.status;
             });
+
+            // Переключение на отображение транзакций
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('transactionSummary').style.display = 'block';
         }
+
+        // Просмотр всех транзакций
+        document.getElementById('viewTransactionsBtn').addEventListener('click', function() {
+            updateTransactionTable();
+        });
+
+        // Создание новой транзакции
+        document.getElementById('newTransactionBtn').addEventListener('click', function() {
+            document.getElementById('transactionSummary').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+        });
     </script>
 </body>
 </html>
