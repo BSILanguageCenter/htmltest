@@ -174,7 +174,8 @@
                     <label for="transactionAmount">Сумма транзакции ($)</label>
                     <input type="number" id="transactionAmount" name="transactionAmount" required>
                 </div>
-                <button type="submit" class="btn">Отправи2ть транзакцию</button>
+                <button type="submit" class="btn">Отправить транзакцию</button>
+                <button type="button" id="viewTransactionsBtn" class="btn" style="background-color: #6c757d;">Посмотреть транзакции</button>
             </form>
         </div>
 
@@ -206,6 +207,7 @@
         const transactionSummary = document.getElementById('transactionSummary');
         const transactionTableBody = document.getElementById('transactionTable').getElementsByTagName('tbody')[0];
         const newTransactionBtn = document.getElementById('newTransactionBtn');
+        const viewTransactionsBtn = document.getElementById('viewTransactionsBtn');
         const editNameBtn = document.getElementById('editNameBtn');
         const editAddressBtn = document.getElementById('editAddressBtn');
 
@@ -246,52 +248,51 @@
                 recipientName: document.getElementById('recipientName').value,
                 recipientPhone: document.getElementById('recipientPhone').value,
                 transactionAmount: document.getElementById('transactionAmount').value,
-                status: 'Ожидание'  // Начальный статус
+                status: 'В обработке',
             };
 
-            // Добавляем транзакцию в список
+            // Добавление транзакции в список
             transactions.push(transaction);
 
-            // Очистка полей после отправки
+            // Очистка полей формы
             transactionForm.reset();
 
-            // Обновление таблицы транзакций
-            const row = transactionTableBody.insertRow();
-            row.innerHTML = `
-                <td>${transaction.deliveryMethod}</td>
-                <td>${transaction.recipientName}</td>
-                <td>${transaction.recipientPhone}</td>
-                <td>${transaction.transactionAmount}</td>
-                <td class="status">${transaction.status}</td>
-            `;
+            // Отображение данных в таблице
+            displayTransactions();
 
-            // Показ транзакций
-            step2.style.display = 'none';
+            // Переключение на список транзакций
             transactionSummary.style.display = 'block';
+            step2.style.display = 'none';
+        });
+
+        viewTransactionsBtn.addEventListener('click', function() {
+            // Показать список транзакций
+            transactionSummary.style.display = 'block';
+            step2.style.display = 'none';
         });
 
         newTransactionBtn.addEventListener('click', function() {
-            // Скрыть список транзакций и показать форму транзакции
+            // Вернуться на форму создания новой транзакции
             transactionSummary.style.display = 'none';
             step2.style.display = 'block';
         });
 
-        // Функции редактирования данных пользователя
-        editNameBtn.addEventListener('click', function() {
-            const newName = prompt('Введите новое имя:', document.getElementById('displayName').textContent);
-            if (newName) {
-                document.getElementById('displayName').textContent = newName;
-                userData.name = newName;
-            }
-        });
+        function displayTransactions() {
+            // Очистить таблицу перед добавлением новых данных
+            transactionTableBody.innerHTML = '';
 
-        editAddressBtn.addEventListener('click', function() {
-            const newAddress = prompt('Введите новый адрес:', document.getElementById('displayAddress').textContent);
-            if (newAddress) {
-                document.getElementById('displayAddress').textContent = newAddress;
-                userData.address = newAddress;
-            }
-        });
+            transactions.forEach(function(transaction) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${transaction.deliveryMethod}</td>
+                    <td>${transaction.recipientName}</td>
+                    <td>${transaction.recipientPhone}</td>
+                    <td>${transaction.transactionAmount}</td>
+                    <td class="status ${transaction.status === 'В обработке' ? '' : 'processed'}">${transaction.status}</td>
+                `;
+                transactionTableBody.appendChild(row);
+            });
+        }
     </script>
 </body>
 </html>
