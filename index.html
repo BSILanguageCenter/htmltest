@@ -257,40 +257,52 @@
             // Очистка полей формы
             transactionForm.reset();
 
-            // Отображение данных в таблице
-            displayTransactions();
+            // Обновляем таблицу транзакций
+            updateTransactionTable();
 
-            // Переключение на список транзакций
+            // Показываем список транзакций
             transactionSummary.style.display = 'block';
             step2.style.display = 'none';
         });
 
         viewTransactionsBtn.addEventListener('click', function() {
-            // Показать список транзакций
+            // Показываем список транзакций
             transactionSummary.style.display = 'block';
             step2.style.display = 'none';
         });
 
         newTransactionBtn.addEventListener('click', function() {
-            // Вернуться на форму создания новой транзакции
+            // Возвращаемся к форме транзакции
             transactionSummary.style.display = 'none';
             step2.style.display = 'block';
         });
 
-        function displayTransactions() {
-            // Очистить таблицу перед добавлением новых данных
+        editNameBtn.addEventListener('click', function() {
+            document.getElementById('name').value = userData.name;
+            step1.style.display = 'block';
+            step2.style.display = 'none';
+        });
+
+        editAddressBtn.addEventListener('click', function() {
+            document.getElementById('address').value = userData.address;
+            step1.style.display = 'block';
+            step2.style.display = 'none';
+        });
+
+        function updateTransactionTable() {
+            // Очищаем таблицу перед обновлением
             transactionTableBody.innerHTML = '';
 
-            transactions.forEach(function(transaction) {
-                const row = document.createElement('tr');
+            // Заполняем таблицу новыми транзакциями
+            transactions.forEach(transaction => {
+                const row = transactionTableBody.insertRow();
                 row.innerHTML = `
                     <td>${transaction.deliveryMethod}</td>
                     <td>${transaction.recipientName}</td>
                     <td>${transaction.recipientPhone}</td>
                     <td>${transaction.transactionAmount}</td>
-                    <td class="status ${transaction.status === 'В обработке' ? '' : 'processed'}">${transaction.status}</td>
+                    <td><span class="status ${transaction.status === 'В обработке' ? '' : 'processed'}">${transaction.status}</span></td>
                 `;
-                transactionTableBody.appendChild(row);
             });
         }
     </script>
