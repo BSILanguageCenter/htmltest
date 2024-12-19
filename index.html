@@ -3,52 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Отправка данных</title>
-  <script>
-    function sendData(event) {
-      event.preventDefault(); // Предотвращает перезагрузку страницы
-
-      // Собираем данные формы
-      const form = document.getElementById('transactionForm');
-      const formData = new FormData(form);
-
-      // Отправка данных в Google Apps Script
-      fetch('https://script.google.com/macros/s/AKfycbzWKL70ZdiJjWcUviB7RrAewFybFOdRFVAyxZg2tgNqEkh5LLYDYtKe5RoxB60K8A_lag/exec', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.text())
-      .then(data => {
-        alert(data); // Показываем код транзакции или сообщение об ошибке
-      })
-      .catch(error => {
-        console.error('Ошибка при отправке данных:', error);
-      });
+  <title>Форма транзакции</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f7f7f7;
     }
-  </script>
+    .container {
+      max-width: 480px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .field {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      background-color: #4a90e2;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #357ab7;
+    }
+    .message {
+      display: none;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .message.success {
+      background-color: #28a745;
+      color: #fff;
+    }
+    .message.error {
+      background-color: #e74c3c;
+      color: #fff;
+    }
+  </style>
 </head>
 <body>
-  <h1>Отправка данных транзакции</h1>
-  <form id="transactionForm" onsubmit="sendData(event)">
-    <label for="name">Ваше имя:</label>
-    <input type="text" name="name" required><br>
+  <div class="container">
+    <h1>Форма транзакции</h1>
+    <form id="transactionForm">
+      <!-- Telegram ID -->
+      <div class="field">
+        <label for="telegramId">Telegram ID</label>
+        <input type="text" id="telegramId" name="Telegram ID" required>
+      </div>
+      <!-- Адрес пользователя -->
+      <div class="field">
+        <label for="userAddress">Адрес пользователя</label>
+        <input type="text" id="userAddress" name="User Address">
+      </div>
+      <!-- Имя получателя -->
+      <div class="field">
+        <label for="recipientName">Имя получателя</label>
+        <input type="text" id="recipientName" name="Recipient Name" required>
+      </div>
+      <!-- Номер получателя -->
+      <div class="field">
+        <label for="recipientPhone">Номер получателя</label>
+        <input type="text" id="recipientPhone" name="Recipient Phone" required>
+      </div>
+      <!-- Сумма для получателя -->
+      <div class="field">
+        <label for="amount">Сумма для получателя</label>
+        <input type="number" id="amount" name="Amount" required>
+      </div>
+      <!-- Кнопка отправки -->
+      <button type="submit">Отправить</button>
+    </form>
+    <div id="message" class="message"></div>
+  </div>
 
-    <label for="address">Ваш адрес:</label>
-    <input type="text" name="address" required><br>
+  <script>
+    const form = document.getElementById('transactionForm');
+    const messageDiv = document.getElementById('message');
 
-    <label for="phone">Ваш телефон:</label>
-    <input type="text" name="phone" required><br>
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
 
-    <label for="recipient_name">Имя получателя:</label>
-    <input type="text" name="recipient_name" required><br>
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
 
-    <label for="delivery_method">Метод доставки:</label>
-    <input type="text" name="delivery_method" required><br>
+      messageDiv.textContent = 'Отправка данных...';
+      messageDiv.className = 'message';
+      messageDiv.style.display = 'block';
 
-    <label for="amount">Сумма:</label>
-    <input type="number" name="amount" required><br>
-
-    <button type="submit">Отправить</button>
-  </form>
+      fetch('https://script.google.com/macros/s/AKfycbxqZcsqbySRsJp7PmAZmKg4PnFZR6CF3IH_SIDvT4X_nFQuVdTDwbtGHcVHZrs877HQ/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          messageDiv.textContent = result.message || 'Данные успешно отправлены!';
+          messageDiv.className = 'message success';
+        })
+        .catch(() => {
+          messageDiv.textContent = 'Ошибка при отправке данных.';
+          messageDiv.className = 'message error';
+        })
+        .finally(() => {
+          setTimeout(() => {
+            messageDiv.style.display = 'none';
+          }, 3000);
+        });
+    });
+  </script>
 </body>
 </html>
